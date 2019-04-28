@@ -1,6 +1,6 @@
 import { IConstructor } from './types';
 
-export class Injectify {
+export class DepInjection {
   private container = new Map<string, () => any>();
 
   public get<T>(type: string): T {
@@ -12,7 +12,7 @@ export class Injectify {
     return wrapper();
   }
 
-  public register<T>(type: string, Injectable: IConstructor<T>): Injectify {
+  public register<T>(type: string, Injectable: IConstructor<T>): DepInjection {
     this.container.set(type, () => {
       const args = this.generateDeps(Injectable.deps || []);
       const instance = new Injectable(...args);

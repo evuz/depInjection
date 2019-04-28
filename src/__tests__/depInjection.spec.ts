@@ -1,4 +1,4 @@
-import { Injectify } from '../injectify';
+import { DepInjection } from '../depInjection';
 
 const TYPES = {
   foo: 'Foo',
@@ -27,21 +27,21 @@ class Baz {
   }
 }
 
-describe('Injectify', () => {
-  let container: Injectify;
+describe('DepInjection', () => {
+  let container: DepInjection;
 
   beforeEach(() => {
-    container = new Injectify();
+    container = new DepInjection();
     container
       .register(TYPES.foo, Foo)
       .register(TYPES.bar, Bar)
       .register(TYPES.baz, Baz);
   });
 
-  test('should create a Injectify instance', () => {
-    const injectify = new Injectify();
-    expect(injectify).toBeTruthy();
-    expect(injectify instanceof Injectify).toBeTruthy();
+  test('should create a depInjection instance', () => {
+    const depInjection = new DepInjection();
+    expect(depInjection).toBeTruthy();
+    expect(depInjection instanceof DepInjection).toBeTruthy();
   });
 
   test('should register class', () => {

@@ -1,1 +1,1 @@
-export * from './injectify';
+export * from './depInjection';
