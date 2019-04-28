@@ -1,3 +1,4 @@
-export interface IConstructor<T, U extends any[] = []> {
-  new (...args: U | never[]): T;
+export interface IConstructor<T> {
+  new (...args): T;
+  deps?: string[];
 }
