@@ -1,1 +1,1 @@
-export class Injectify { }
+export class Injectify {}
