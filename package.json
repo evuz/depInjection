@@ -1,5 +1,5 @@
 {
-  "name": "dep-injection",
+  "name": "depsin",
   "version": "1.0.0",
   "license": "ISC",
   "description": "A lightweight library for dependency injection in JavaScript",
