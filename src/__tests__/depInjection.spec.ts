@@ -20,19 +20,30 @@ class Bar {
 }
 
 class Baz {
-  public static deps = [TYPES.foo];
+  public static deps = [TYPES.bar];
   constructor(public foo: Foo) {}
   public action() {
     this.foo.action();
   }
 }
 
+class CircularFoo {
+  public static deps = [TYPES.baz];
+}
+
+class CircularBar {
+  public static deps = [TYPES.foo];
+}
+
+class CircularBaz {
+  public static deps = [TYPES.bar];
+}
+
 describe('DepInjection', () => {
   let container: DepInjection;
 
   beforeEach(() => {
-    container = new DepInjection();
-    container
+    container = new DepInjection()
       .register(TYPES.foo, Foo)
       .register(TYPES.bar, Bar)
       .register(TYPES.baz, Baz);
@@ -62,5 +73,16 @@ describe('DepInjection', () => {
     bar.action();
     baz.action();
     expect(foo.action).toHaveBeenCalledTimes(2);
+  });
+
+  test('should throw circular dependencies error', () => {
+    const circular = new DepInjection()
+      .register(TYPES.foo, CircularFoo)
+      .register(TYPES.bar, CircularBar)
+      .register(TYPES.baz, CircularBaz);
+    function getFoo() {
+      circular.get(TYPES.foo);
+    }
+    expect(getFoo).toThrowError('circular');
   });
 });
