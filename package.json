@@ -11,6 +11,9 @@
   "main": "dist/depInjection.cjs.js",
   "module": "dist/depInjection.esm.js",
   "browser": "dist/depInjection.umd.js",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "rollup -c",
     "dev": "jest --watch",
