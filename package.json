@@ -11,6 +11,7 @@
   "main": "dist/depInjection.cjs.js",
   "module": "dist/depInjection.esm.js",
   "browser": "dist/depInjection.umd.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist/**/*"
   ],
@@ -38,7 +39,6 @@
     "rollup": "^1.10.1",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-node-resolve": "^4.2.3",
-    "rollup-plugin-typescript": "^1.0.1",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.5"
   },
@@ -53,5 +53,8 @@
       "eslint",
       "git add"
     ]
+  },
+  "dependencies": {
+    "rollup-plugin-typescript2": "^0.21.0"
   }
 }

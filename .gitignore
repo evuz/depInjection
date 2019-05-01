@@ -1,10 +1,14 @@
 
 # Created by https://www.gitignore.io/api/node,webstorm,sublimetext,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=node,webstorm,sublimetext,visualstudiocode
+
 ### Build ###
 dist
 
 ### Node ###
+# Rollup cache
+.rpt2_cache
+
 # Logs
 logs
 *.log
