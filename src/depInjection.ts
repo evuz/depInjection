@@ -8,6 +8,16 @@ export class DepInjection {
     return this.getInstance(type, []);
   }
 
+  public set(type: string, value) {
+    if (this.container.has(type)) {
+      throw Error(ERRORS.ALREADY_REGISTER(type));
+    }
+    this.container.set(type, function() {
+      return value;
+    });
+    return this;
+  }
+
   public register<T>(type: string, Injectable: IConstructor<T>): DepInjection {
     if (this.container.has(type)) {
       throw Error(ERRORS.ALREADY_REGISTER(type));
