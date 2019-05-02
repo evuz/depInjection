@@ -1,15 +1,25 @@
 {
-  "name": "dep-injection",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "depsin",
+  "version": "1.1.0",
+  "license": "ISC",
+  "description": "A lightweight library for dependency injection in JavaScript",
+  "author": "Jesus Gomez Bellido",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evuz/depInjection.git"
+  },
+  "main": "dist/depInjection.cjs.js",
+  "module": "dist/depInjection.esm.js",
+  "browser": "dist/depInjection.umd.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c",
     "dev": "jest --watch",
     "test": "jest --silent"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@types/jest": "^24.0.11",
     "@typescript-eslint/eslint-plugin": "^1.7.0",
@@ -26,6 +36,9 @@
     "jest": "^24.7.1",
     "lint-staged": "^8.1.5",
     "prettier": "^1.17.0",
+    "rollup": "^1.10.1",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-node-resolve": "^4.2.3",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.5"
   },
@@ -40,5 +53,8 @@
       "eslint",
       "git add"
     ]
+  },
+  "dependencies": {
+    "rollup-plugin-typescript2": "^0.21.0"
   }
 }
