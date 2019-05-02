@@ -1,6 +1,6 @@
 {
   "name": "depsin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "ISC",
   "description": "A lightweight library for dependency injection in JavaScript",
   "author": "Jesus Gomez Bellido",
