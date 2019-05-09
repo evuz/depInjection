@@ -18,7 +18,9 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "jest --watch",
-    "test": "jest --silent"
+    "test": "jest --silent",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test"
   },
   "devDependencies": {
     "@types/jest": "^24.0.11",
