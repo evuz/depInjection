@@ -1,8 +1,17 @@
-import { IConstructor } from './types';
+import { IConstructor, IProviders } from './types';
 import * as ERRORS from './errors';
 
 export class DepInjection {
   private container = new Map<string, (parents?: string[]) => any>();
+
+  constructor(providers?: IProviders, values?: IProviders) {
+    if (providers) {
+      Object.keys(providers).forEach(key => this.register(key, providers[key]));
+    }
+    if (values) {
+      Object.keys(values).forEach(key => this.set(key, values[key]));
+    }
+  }
 
   public get<T>(type: string): T {
     return this.getInstance(type, []);
