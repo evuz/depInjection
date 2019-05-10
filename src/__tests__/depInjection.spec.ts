@@ -4,6 +4,7 @@ const TYPES = {
   foo: 'Foo',
   bar: 'Bar',
   baz: 'Baz',
+  qux: 'Qux',
 };
 
 class Foo {
@@ -27,6 +28,8 @@ class Baz {
   }
 }
 
+class Qux {}
+
 class CircularFoo {
   public static deps = [TYPES.baz];
 }
@@ -43,10 +46,11 @@ describe('DepInjection', () => {
   let container: DepInjection;
 
   beforeEach(() => {
-    container = new DepInjection()
-      .register(TYPES.foo, Foo)
-      .register(TYPES.bar, Bar)
-      .register(TYPES.baz, Baz);
+    container = new DepInjection({
+      [TYPES.foo]: Foo,
+      [TYPES.bar]: Bar,
+      [TYPES.baz]: Baz,
+    });
   });
 
   test('should create a depInjection instance', () => {
@@ -64,6 +68,16 @@ describe('DepInjection', () => {
     const bar = container.get<Bar>(TYPES.bar);
     bar.action();
     expect(bar.foo instanceof Foo).toBeTruthy();
+  });
+
+  test('should register a new class', () => {
+    function error() {
+      return container.get<Qux>(TYPES.qux);
+    }
+    expect(error).toThrowError('not register');
+    container.register(TYPES.qux, Qux);
+    const qux = container.get<Qux>(TYPES.qux);
+    expect(qux instanceof Qux).toBeTruthy();
   });
 
   test('should create only one Foo instance', () => {
