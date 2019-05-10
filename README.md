@@ -77,9 +77,8 @@ class App {
   }
 }
 
-const container = new DepInjection()
-  .register(TYPES.App, App)
-  .set(TYPES.Url, url)
+const container = new DepInjection({ [TYPES.App]: App }, { [TYPES.Url]: url })
+  // .set(TYPES.Url, url)
   .register(TYPES.Auth, Auth)
   .register(TYPES.Login, LoginService);
 
@@ -139,9 +138,8 @@ class App {
 
 App.deps = [TYPES.Auth, TYPES.Login];
 
-const container = new DepInjection()
+const container = new DepInjection({[TYPES.Auth]: Auth})
   .register(TYPES.App, App)
-  .register(TYPES.Auth, Auth)
   .register(TYPES.Login, LoginService);
 
 const app = container.get(TYPES.App);
