@@ -2,8 +2,7 @@ import { IConstructor, IProviders } from './types';
 import * as ERRORS from './errors';
 
 export class DepInjection {
-  public static containers = new Map<string, DepInjection>();
-  public name: string;
+  public static containersDeps = new Map<string, IProviders>();
 
   private container = new Map<string, (parents?: string[]) => any>();
 
@@ -19,8 +18,9 @@ export class DepInjection {
       values = args[2];
     }
 
-    this.name = this.getContainerName(name);
-    DepInjection.containers.set(this.name, this);
+    name = this.getContainerName(name);
+    const providersStored = DepInjection.containersDeps.get(name) || {};
+    providers = { ...providersStored, ...providers };
     if (providers) {
       Object.keys(providers).forEach(key => this.register(key, providers[key]));
     }
@@ -79,11 +79,11 @@ export class DepInjection {
       return name;
     }
 
-    switch (DepInjection.containers.size) {
+    switch (DepInjection.containersDeps.size) {
       case 0:
         return 'root';
       default:
-        return (DepInjection.containers.size + 1).toString();
+        return (DepInjection.containersDeps.size + 1).toString();
     }
   }
 }
