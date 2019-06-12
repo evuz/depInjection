@@ -2,9 +2,25 @@ import { IConstructor, IProviders } from './types';
 import * as ERRORS from './errors';
 
 export class DepInjection {
+  public static containers = new Map<string, DepInjection>();
+  public name: string;
+
   private container = new Map<string, (parents?: string[]) => any>();
 
-  constructor(providers?: IProviders, values?: IProviders) {
+  constructor(providers?: IProviders, values?: IProviders);
+  constructor(name: string, providers?: IProviders, values?: IProviders);
+  constructor(...args) {
+    let name: string;
+    let providers: IProviders = args[0];
+    let values: IProviders = args[1];
+    if (typeof args[0] === 'string') {
+      name = args[0];
+      providers = args[1];
+      values = args[2];
+    }
+
+    this.name = this.getContainerName(name);
+    DepInjection.containers.set(this.name, this);
     if (providers) {
       Object.keys(providers).forEach(key => this.register(key, providers[key]));
     }
@@ -56,5 +72,18 @@ export class DepInjection {
       throw Error(ERRORS.NOT_REGISTER(type));
     }
     return wrapper(parents);
+  }
+
+  private getContainerName(name: string) {
+    if (name) {
+      return name;
+    }
+
+    switch (DepInjection.containers.size) {
+      case 0:
+        return 'root';
+      default:
+        return (DepInjection.containers.size + 1).toString();
+    }
   }
 }

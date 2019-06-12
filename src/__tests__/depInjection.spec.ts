@@ -46,6 +46,7 @@ describe('DepInjection', () => {
   let container: DepInjection;
 
   beforeEach(() => {
+    DepInjection.containers.clear();
     container = new DepInjection({
       [TYPES.foo]: Foo,
       [TYPES.bar]: Bar,
@@ -98,5 +99,19 @@ describe('DepInjection', () => {
       circular.get(TYPES.foo);
     }
     expect(getFoo).toThrowError('circular');
+  });
+
+  test('should store all containers', () => {
+    new DepInjection().register(TYPES.foo, Foo);
+    expect(DepInjection.containers.size).toBe(2);
+  });
+
+  test('should store first container like root', () => {
+    expect(DepInjection.containers.get('root')).toEqual(container);
+  });
+
+  test('should store first container like root', () => {
+    const testContainer = new DepInjection('FooStored').register(TYPES.foo, Foo);
+    expect(DepInjection.containers.get('FooStored')).toEqual(testContainer);
   });
 });
