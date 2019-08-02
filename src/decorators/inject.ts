@@ -5,9 +5,10 @@ export function inject(type: string) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return function(target: IConstructor<any>, _propertyKey: string | symbol, _parameterIndex: number) {
     const deps = target.deps || [];
+    console.log(type);
     if (!Array.isArray(deps)) {
       throw Error(NO_USE_DEPS);
     }
-    target.deps = deps.concat(type);
+    target.deps = [type].concat(deps);
   };
 }
