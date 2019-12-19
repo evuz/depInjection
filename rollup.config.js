@@ -1,7 +1,13 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
+import bundleSize from 'rollup-plugin-bundle-size';
+import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
+
+function commonPlugins() {
+  return [typescript(), terser(), bundleSize()];
+}
 
 export default [
   // browser-friendly UMD build
@@ -12,7 +18,7 @@ export default [
       file: pkg.browser,
       format: 'umd',
     },
-    plugins: [resolve(), commonjs(), typescript()],
+    plugins: [resolve(), commonjs(), ...commonPlugins()],
   },
 
   // CommonJS (for Node) and ES module (for bundlers) build.
@@ -24,7 +30,7 @@ export default [
   {
     input: 'src/depsin.ts',
     external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
-    plugins: [typescript()],
+    plugins: commonPlugins(),
     output: [{ file: pkg.main, format: 'cjs' }, { file: pkg.module, format: 'es' }],
   },
 ];
