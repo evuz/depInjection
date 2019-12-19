@@ -8,10 +8,10 @@
     "type": "git",
     "url": "git+https://github.com/evuz/depInjection.git"
   },
-  "main": "dist/depInjection.cjs.js",
-  "module": "dist/depInjection.esm.js",
-  "browser": "dist/depInjection.umd.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/depsin.cjs.js",
+  "module": "dist/depsin.esm.js",
+  "browser": "dist/depsin.umd.js",
+  "types": "dist/depsin.d.ts",
   "files": [
     "dist/**/*"
   ],

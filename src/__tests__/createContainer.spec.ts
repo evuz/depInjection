@@ -1,4 +1,5 @@
-import { DepInjection } from '../depInjection';
+import { createContainer, DEPS_SYMBOL } from '../createContainer';
+import { Depsin } from '../types';
 
 const TYPES = {
   foo: 'Foo',
@@ -12,7 +13,7 @@ class Foo {
 }
 
 class Bar {
-  public static deps = [TYPES.foo];
+  public static [DEPS_SYMBOL] = [TYPES.foo];
   constructor(public foo: Foo) {}
   public action() {
     this.foo.action();
@@ -21,7 +22,7 @@ class Bar {
 }
 
 class Baz {
-  public static deps = [TYPES.bar];
+  public static [DEPS_SYMBOL] = [TYPES.bar];
   constructor(public foo: Foo) {}
   public action() {
     this.foo.action();
@@ -31,37 +32,34 @@ class Baz {
 class Qux {}
 
 class CircularFoo {
-  public static deps = [TYPES.baz];
+  public static [DEPS_SYMBOL] = [TYPES.baz];
 }
 
 class CircularBar {
-  public static deps = [TYPES.foo];
+  public static [DEPS_SYMBOL] = [TYPES.foo];
 }
 
 class CircularBaz {
-  public static deps = [TYPES.bar];
+  public static [DEPS_SYMBOL] = [TYPES.bar];
 }
 
 describe('DepInjection', () => {
-  let container: DepInjection;
+  let container: Depsin;
 
   beforeEach(() => {
-    container = new DepInjection({
-      [TYPES.foo]: Foo,
-      [TYPES.bar]: Bar,
-      [TYPES.baz]: Baz,
+    container = createContainer({
+      [TYPES.foo]: { asClass: Foo },
+      [TYPES.bar]: { asClass: Bar },
+      [TYPES.baz]: { asClass: Baz },
     });
   });
 
-  test('should create a depInjection instance', () => {
-    const depInjection = new DepInjection();
-    expect(depInjection).toBeTruthy();
-    expect(depInjection instanceof DepInjection).toBeTruthy();
+  test('should create a container', () => {
+    expect(container).toBeTruthy();
   });
 
   test('should register class', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((container as any).container.size).toEqual(3);
+    expect(container.size()).toEqual(3);
   });
 
   test('should create a Foo instance', () => {
@@ -90,7 +88,7 @@ describe('DepInjection', () => {
   });
 
   test('should throw circular dependencies error', () => {
-    const circular = new DepInjection()
+    const circular = createContainer()
       .register(TYPES.foo, CircularFoo)
       .register(TYPES.bar, CircularBar)
       .register(TYPES.baz, CircularBaz);

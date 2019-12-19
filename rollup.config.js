@@ -6,9 +6,9 @@ import pkg from './package.json';
 export default [
   // browser-friendly UMD build
   {
-    input: 'src/index.ts',
+    input: 'src/depsin.ts',
     output: {
-      name: 'depInjection',
+      name: 'depsin',
       file: pkg.browser,
       format: 'umd',
     },
@@ -22,7 +22,7 @@ export default [
   // an array for the `output` option, where we can specify
   // `file` and `format` for each target)
   {
-    input: 'src/index.ts',
+    input: 'src/depsin.ts',
     external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
     plugins: [typescript()],
     output: [{ file: pkg.main, format: 'cjs' }, { file: pkg.module, format: 'es' }],
