@@ -1,5 +1,6 @@
 import { inject } from '../decorators/inject';
 import { IConstructor } from '../types';
+import { DEPS_SYMBOL } from '../symbols';
 
 const TYPES = {
   foo: 'Foo',
@@ -15,11 +16,11 @@ class Bar {
 
 describe('@inject', () => {
   test('should create a deps property', () => {
-    expect((Bar as IConstructor<Bar>).deps).toContain(TYPES.foo);
-    expect((Bar as IConstructor<Bar>).deps).toContain(TYPES.bar);
+    expect((Bar as IConstructor<Bar>)[DEPS_SYMBOL]).toContain(TYPES.foo);
+    expect((Bar as IConstructor<Bar>)[DEPS_SYMBOL]).toContain(TYPES.bar);
   });
 
   test('should create a deps property in order', () => {
-    expect((Bar as IConstructor<Bar>).deps[0]).toBe(TYPES.bar);
+    expect((Bar as IConstructor<Bar>)[DEPS_SYMBOL][0]).toBe(TYPES.bar);
   });
 });
