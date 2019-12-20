@@ -1,4 +1,5 @@
-import { createContainer, DEPS_SYMBOL } from '../createContainer';
+import { createContainer } from '../createContainer';
+import { DEPS_SYMBOL } from '../symbols';
 import { Depsin } from '../types';
 
 const TYPES = {

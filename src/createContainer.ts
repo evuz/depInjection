@@ -1,7 +1,6 @@
 import { IConstructor, Depsin, IProviders, IProviderClass, IProviderValue } from './types';
-import * as ERRORS from './errors';
-
-export const DEPS_SYMBOL = '@@deps';
+import { DEPS_SYMBOL } from './symbols';
+import * as Errors from './errors';
 
 export function createContainer(providers?: IProviders): Depsin {
   const container = {};
@@ -26,19 +25,19 @@ export function createContainer(providers?: IProviders): Depsin {
   function getInstance<T>(type: string, parents: string[]): T {
     const wrapper = container[type];
     if (!wrapper) {
-      throw Error(ERRORS.NOT_REGISTER(type));
+      throw Error(Errors.NOT_REGISTER(type));
     }
     return wrapper(parents);
   }
 
   function register<T>(type: string, Injectable: IConstructor<T>): Depsin {
     if (container[type]) {
-      throw Error(ERRORS.ALREADY_REGISTER(type));
+      throw Error(Errors.ALREADY_REGISTER(type));
     }
 
     container[type] = parents => {
       if (parents.indexOf(type) > -1) {
-        throw Error(ERRORS.CIRCULAR_DEPENDENCIES(type));
+        throw Error(Errors.CIRCULAR_DEPENDENCIES(type));
       }
       const args = generateDeps(Injectable[DEPS_SYMBOL] || [], parents.concat(type));
       const instance = new Injectable(...args);
@@ -53,7 +52,7 @@ export function createContainer(providers?: IProviders): Depsin {
 
   function set(type: string, value): Depsin {
     if (container[type]) {
-      throw Error(ERRORS.ALREADY_REGISTER(type));
+      throw Error(Errors.ALREADY_REGISTER(type));
     }
     container[type] = function() {
       return value;
