@@ -1,6 +1,6 @@
 import { createContainer } from '../createContainer';
-import { DEPS_SYMBOL } from '../symbols';
-import { Depsin } from '../types';
+import { DEPS_SYMBOL } from '../utils/symbols';
+import { Depsin } from '../utils/types';
 
 const TYPES = {
   foo: 'Foo',

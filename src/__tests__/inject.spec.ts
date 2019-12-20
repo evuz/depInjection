@@ -1,6 +1,6 @@
 import { inject } from '../decorators/inject';
-import { IConstructor } from '../types';
-import { DEPS_SYMBOL } from '../symbols';
+import { IConstructor } from '../utils/types';
+import { DEPS_SYMBOL } from '../utils/symbols';
 
 const TYPES = {
   foo: 'Foo',

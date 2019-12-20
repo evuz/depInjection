@@ -1,6 +1,6 @@
-import { IConstructor } from '../types';
-import { NO_USE_DEPS } from '../errors';
-import { DEPS_SYMBOL } from '../symbols';
+import { IConstructor } from '../utils/types';
+import { NO_USE_DEPS } from '../utils/errors';
+import { DEPS_SYMBOL } from '../utils/symbols';
 
 export function inject(type: string) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

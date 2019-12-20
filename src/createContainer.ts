@@ -1,6 +1,6 @@
-import { IConstructor, Depsin, IProviders, IProviderClass, IProviderValue } from './types';
-import { DEPS_SYMBOL } from './symbols';
-import * as Errors from './errors';
+import { IConstructor, Depsin, IProviders, IProviderClass, IProviderValue } from './utils/types';
+import { DEPS_SYMBOL } from './utils/symbols';
+import * as Errors from './utils/errors';
 
 export function createContainer(providers?: IProviders): Depsin {
   const container = {};
