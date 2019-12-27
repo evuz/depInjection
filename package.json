@@ -15,6 +15,7 @@
   "files": [
     "dist/**/*"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "rollup -c",
     "dev": "jest --watch",
