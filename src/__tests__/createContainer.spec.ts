@@ -1,12 +1,13 @@
 import { createContainer } from '../createContainer';
 import { DEPS_SYMBOL } from '../utils/symbols';
-import { Depsin } from '../utils/types';
+import { Container } from '../utils/types';
 
 const TYPES = {
   foo: 'Foo',
   bar: 'Bar',
   baz: 'Baz',
   qux: 'Qux',
+  quux: 'Quux',
 };
 
 class Foo {
@@ -32,6 +33,11 @@ class Baz {
 
 class Qux {}
 
+class Quux {
+  public static [DEPS_SYMBOL] = [TYPES.foo, TYPES.bar];
+  constructor(public foo: number, public bar: string) {}
+}
+
 class CircularFoo {
   public static [DEPS_SYMBOL] = [TYPES.baz];
 }
@@ -44,8 +50,8 @@ class CircularBaz {
   public static [DEPS_SYMBOL] = [TYPES.bar];
 }
 
-describe('DepInjection', () => {
-  let container: Depsin;
+describe('CreateContainer', () => {
+  let container: Container;
 
   beforeEach(() => {
     container = createContainer({
@@ -66,6 +72,7 @@ describe('DepInjection', () => {
   test('should create a Foo instance', () => {
     const bar = container.get<Bar>(TYPES.bar);
     bar.action();
+
     expect(bar.foo instanceof Foo).toBeTruthy();
   });
 
@@ -74,28 +81,69 @@ describe('DepInjection', () => {
       return container.get<Qux>(TYPES.qux);
     }
     expect(error).toThrowError('not register');
-    container.register(TYPES.qux, Qux);
+    container.register(TYPES.qux).asClass(Qux);
+
     const qux = container.get<Qux>(TYPES.qux);
     expect(qux instanceof Qux).toBeTruthy();
   });
 
+  test('should register class and value', () => {
+    container = createContainer({
+      [TYPES.quux]: { asClass: Quux },
+      [TYPES.foo]: { asValue: 3 },
+    });
+    container.register(TYPES.bar).asValue('value');
+
+    const quux = container.get<Quux>(TYPES.quux);
+    expect(quux.foo).toBe(3);
+    expect(quux.bar).toBe('value');
+  });
+
   test('should create only one Foo instance', () => {
+    container = createContainer(
+      {
+        [TYPES.foo]: { asClass: Foo },
+        [TYPES.bar]: { asClass: Bar },
+        [TYPES.baz]: { asClass: Baz },
+      },
+      { lifetime: 'singleton' },
+    );
+
     const bar = container.get<Bar>(TYPES.bar);
     const baz = container.get<Baz>(TYPES.baz);
     const foo = container.get<Foo>(TYPES.foo);
     bar.action();
     baz.action();
+
+    expect(foo.action).toHaveBeenCalledTimes(2);
+  });
+
+  test('should create only one Foo instance when register symbol', () => {
+    container = createContainer({
+      [TYPES.bar]: { asClass: Bar },
+      [TYPES.baz]: { asClass: Baz },
+    });
+    container.register(TYPES.foo).asClass(Foo, { lifetime: 'singleton' });
+
+    const bar = container.get<Bar>(TYPES.bar);
+    const baz = container.get<Baz>(TYPES.baz);
+    const foo = container.get<Foo>(TYPES.foo);
+    bar.action();
+    baz.action();
+
     expect(foo.action).toHaveBeenCalledTimes(2);
   });
 
   test('should throw circular dependencies error', () => {
-    const circular = createContainer()
-      .register(TYPES.foo, CircularFoo)
-      .register(TYPES.bar, CircularBar)
-      .register(TYPES.baz, CircularBaz);
+    const circular = createContainer();
+    circular.register(TYPES.foo).asClass(CircularFoo);
+    circular.register(TYPES.bar).asClass(CircularBar);
+    circular.register(TYPES.baz).asClass(CircularBaz);
+
     function getFoo() {
       circular.get(TYPES.foo);
     }
+
     expect(getFoo).toThrowError('circular');
   });
 });
