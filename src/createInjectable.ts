@@ -21,6 +21,22 @@ export function createInjectable(params: CreateInjectable) {
     throw Error(Errors.DEP_EMPTY(symbol));
   };
 
+  function instanceGenerator(creator: Function, deps: any[]) {
+    return function(parents) {
+      if (parents.indexOf(symbol) > -1) {
+        throw Error(Errors.CIRCULAR_DEPENDENCIES(symbol));
+      }
+      const args = generateDeps(deps, parents.concat(symbol));
+      const instance = creator(args);
+      if (opts.lifetime === 'singleton') {
+        inject = function() {
+          return instance;
+        };
+      }
+      return instance;
+    };
+  }
+
   function generateDeps(deps: string[], parents: string[]) {
     return deps.map(dep => getDependencie(dep, parents));
   }
@@ -36,19 +52,19 @@ export function createInjectable(params: CreateInjectable) {
 
   function asClass<T>(Class: IConstructor<T>, o?: InjectableOpts) {
     opts = Object.assign({}, opts, o);
-    inject = parents => {
-      if (parents.indexOf(symbol) > -1) {
-        throw Error(Errors.CIRCULAR_DEPENDENCIES(symbol));
-      }
-      const args = generateDeps(Class[DEPS_SYMBOL] || [], parents.concat(symbol));
-      const instance = new Class(...args);
-      if (opts.lifetime === 'singleton') {
-        inject = function() {
-          return instance;
-        };
-      }
-      return instance;
-    };
+    const deps = Class[DEPS_SYMBOL] || [];
+    inject = instanceGenerator(function(args) {
+      return new Class(...args);
+    }, deps);
+    return injectableModule;
+  }
+
+  function asFunction(func: Function, o?: InjectableOpts) {
+    opts = Object.assign({}, opts, o);
+    const deps = func[DEPS_SYMBOL] || [];
+    inject = instanceGenerator(function(args) {
+      return func(...args);
+    }, deps);
     return injectableModule;
   }
 
@@ -67,6 +83,7 @@ export function createInjectable(params: CreateInjectable) {
 
   return {
     asValue,
+    asFunction,
     asClass,
     _inject: (p: string[]) => inject(p),
   };

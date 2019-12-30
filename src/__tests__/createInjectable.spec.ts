@@ -9,6 +9,16 @@ class Car {
   }
 }
 
+function carFn(wheels: number, engine) {
+  return {
+    start() {
+      return engine.on();
+    },
+    wheels,
+  };
+}
+carFn[DEPS_SYMBOL] = ['Wheels', 'Engine'];
+
 function deps(container: Object) {
   return function(symbol) {
     return container[symbol];
@@ -34,6 +44,13 @@ describe('CreateInjectable', () => {
     expect(injectable).toBeTruthy();
   });
 
+  test('should create a value', () => {
+    const injectable = createInjectable({ getDependencie: getter, symbol: 'Main' });
+    injectable.asValue(() => 'VALUE');
+    const value: Function = injectable._inject([]);
+    expect(value()).toBe('VALUE');
+  });
+
   test('should create a class', () => {
     const injectable = createInjectable({ getDependencie: getter, symbol: 'Main' });
     injectable.asClass(Car);
@@ -42,15 +59,31 @@ describe('CreateInjectable', () => {
     expect(car.wheels).toBe(4);
   });
 
-  test('should create a value', () => {
+  test('should create a function', () => {
     const injectable = createInjectable({ getDependencie: getter, symbol: 'Main' });
-    injectable.asValue(() => 'VALUE');
-    const value: Function = injectable._inject([]);
-    expect(value()).toBe('VALUE');
+    injectable.asFunction(carFn);
+    const car: Car = injectable._inject([]);
+    expect(car.start()).toBe('Start');
+    expect(car.wheels).toBe(4);
+  });
+
+  test('should set lifetime transient by default', () => {
+    const injectable = createInjectable({ getDependencie: getter, symbol: 'Main' });
+    injectable.asFunction(carFn);
+    const firstCar: Car = injectable._inject([]);
+    const secondCar: Car = injectable._inject([]);
+
+    expect(firstCar.start()).toBe('Start');
+    expect(firstCar.wheels).toBe(4);
+
+    expect(secondCar.start()).toBe('Start');
+    expect(secondCar.wheels).toBe(4);
+
+    expect(firstCar).not.toBe(secondCar);
   });
 
   test('should create a transient class', () => {
-    const injectable = createInjectable({ getDependencie: getter, symbol: 'Main' });
+    const injectable = createInjectable({ getDependencie: getter, symbol: 'Main', opts: { lifetime: 'transient' } });
     injectable.asClass(Car);
     const firstCar: Car = injectable._inject([]);
     const secondCar: Car = injectable._inject([]);
@@ -122,5 +155,20 @@ describe('CreateInjectable', () => {
     expect(secondCar.wheels).toBe(4);
 
     expect(firstCar).not.toBe(secondCar);
+  });
+
+  test('should set lifetime when set function', () => {
+    const injectable = createInjectable({ getDependencie: getter, symbol: 'Main' });
+    injectable.asFunction(carFn, { lifetime: 'singleton' });
+    const firstCar: Car = injectable._inject([]);
+    const secondCar: Car = injectable._inject([]);
+
+    expect(firstCar.start()).toBe('Start');
+    expect(firstCar.wheels).toBe(4);
+
+    expect(secondCar.start()).toBe('Start');
+    expect(secondCar.wheels).toBe(4);
+
+    expect(firstCar).toBe(secondCar);
   });
 });
