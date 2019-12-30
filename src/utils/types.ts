@@ -28,6 +28,10 @@ export interface IProviderValue {
   asValue: any;
 }
 
+export interface IProviderFunction {
+  asFunction: Function;
+}
+
 export interface IProviders {
-  [e: string]: IProviderClass | IProviderValue;
+  [e: string]: IProviderClass | IProviderValue | IProviderFunction;
 }

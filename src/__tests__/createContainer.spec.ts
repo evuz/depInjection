@@ -8,6 +8,7 @@ const TYPES = {
   baz: 'Baz',
   qux: 'Qux',
   quux: 'Quux',
+  corge: 'Corge',
 };
 
 class Foo {
@@ -23,13 +24,14 @@ class Bar {
   }
 }
 
-class Baz {
-  public static [DEPS_SYMBOL] = [TYPES.bar];
-  constructor(public foo: Foo) {}
-  public action() {
-    this.foo.action();
-  }
+function Baz(foo: Foo) {
+  return {
+    action() {
+      foo.action();
+    },
+  };
 }
+Baz[DEPS_SYMBOL] = [TYPES.foo];
 
 class Qux {}
 
@@ -37,6 +39,11 @@ class Quux {
   public static [DEPS_SYMBOL] = [TYPES.foo, TYPES.bar];
   constructor(public foo: number, public bar: string) {}
 }
+
+function corge(timeout: number) {
+  return { timeout };
+}
+corge[DEPS_SYMBOL] = ['timeout'];
 
 class CircularFoo {
   public static [DEPS_SYMBOL] = [TYPES.baz];
@@ -46,9 +53,8 @@ class CircularBar {
   public static [DEPS_SYMBOL] = [TYPES.foo];
 }
 
-class CircularBaz {
-  public static [DEPS_SYMBOL] = [TYPES.bar];
-}
+function CircularBaz() {}
+CircularBaz[DEPS_SYMBOL] = [TYPES.bar];
 
 describe('CreateContainer', () => {
   let container: Container;
@@ -57,7 +63,7 @@ describe('CreateContainer', () => {
     container = createContainer({
       [TYPES.foo]: { asClass: Foo },
       [TYPES.bar]: { asClass: Bar },
-      [TYPES.baz]: { asClass: Baz },
+      [TYPES.baz]: { asFunction: Baz },
     });
   });
 
@@ -87,6 +93,19 @@ describe('CreateContainer', () => {
     expect(qux instanceof Qux).toBeTruthy();
   });
 
+  test('should register a function', () => {
+    function error() {
+      return container.get(TYPES.corge);
+    }
+    expect(error).toThrowError('not register');
+    container.register(TYPES.corge).asFunction(corge);
+    container.register('timeout').asValue(1000);
+
+    const dep = container.get<any>(TYPES.corge);
+    expect(dep).toBeTruthy();
+    expect(dep.timeout).toBe(1000);
+  });
+
   test('should register class and value', () => {
     container = createContainer({
       [TYPES.quux]: { asClass: Quux },
@@ -104,13 +123,13 @@ describe('CreateContainer', () => {
       {
         [TYPES.foo]: { asClass: Foo },
         [TYPES.bar]: { asClass: Bar },
-        [TYPES.baz]: { asClass: Baz },
+        [TYPES.baz]: { asFunction: Baz },
       },
       { lifetime: 'singleton' },
     );
 
     const bar = container.get<Bar>(TYPES.bar);
-    const baz = container.get<Baz>(TYPES.baz);
+    const baz = container.get<ReturnType<typeof Baz>>(TYPES.baz);
     const foo = container.get<Foo>(TYPES.foo);
     bar.action();
     baz.action();
@@ -121,12 +140,12 @@ describe('CreateContainer', () => {
   test('should create only one Foo instance when register symbol', () => {
     container = createContainer({
       [TYPES.bar]: { asClass: Bar },
-      [TYPES.baz]: { asClass: Baz },
+      [TYPES.baz]: { asFunction: Baz },
     });
     container.register(TYPES.foo).asClass(Foo, { lifetime: 'singleton' });
 
     const bar = container.get<Bar>(TYPES.bar);
-    const baz = container.get<Baz>(TYPES.baz);
+    const baz = container.get<ReturnType<typeof Baz>>(TYPES.baz);
     const foo = container.get<Foo>(TYPES.foo);
     bar.action();
     baz.action();
@@ -138,7 +157,7 @@ describe('CreateContainer', () => {
     const circular = createContainer();
     circular.register(TYPES.foo).asClass(CircularFoo);
     circular.register(TYPES.bar).asClass(CircularBar);
-    circular.register(TYPES.baz).asClass(CircularBaz);
+    circular.register(TYPES.baz).asFunction(CircularBaz);
 
     function getFoo() {
       circular.get(TYPES.foo);

@@ -1,5 +1,12 @@
 import { createInjectable } from './createInjectable';
-import { IProviders, IProviderClass, IProviderValue, InjectableOpts, Injectable } from './utils/types';
+import {
+  IProviders,
+  IProviderClass,
+  IProviderValue,
+  InjectableOpts,
+  Injectable,
+  IProviderFunction,
+} from './utils/types';
 import * as Errors from './utils/errors';
 
 export function createContainer(providers?: IProviders, opts?: InjectableOpts) {
@@ -10,6 +17,9 @@ export function createContainer(providers?: IProviders, opts?: InjectableOpts) {
       const value = providers[key];
       if ((<IProviderClass>value).asClass) {
         register(key, opts).asClass((<IProviderClass>value).asClass);
+      }
+      if ((<IProviderFunction>value).asFunction) {
+        register(key, opts).asFunction((<IProviderFunction>value).asFunction);
       }
       if ((<IProviderValue>value).asValue) {
         register(key, opts).asValue((<IProviderValue>value).asValue);
@@ -31,15 +41,12 @@ export function createContainer(providers?: IProviders, opts?: InjectableOpts) {
     }
     const injectable = createInjectable({ symbol, opts, getDependencie: getInstance });
     container[symbol] = injectable._inject;
-    return Object.keys(injectable).reduce(
-      (acc, key) => {
-        if (!key.startsWith('_')) {
-          acc[key] = injectable[key];
-        }
-        return acc;
-      },
-      <Injectable>{},
-    );
+    return Object.keys(injectable).reduce((acc, key) => {
+      if (!key.startsWith('_')) {
+        acc[key] = injectable[key];
+      }
+      return acc;
+    }, <Injectable>{});
   }
 
   function get<T>(symbol: string): T {
