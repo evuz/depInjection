@@ -29,7 +29,7 @@ If you use Typescript and want to use the decorator `@inject` you muste add in y
 
 ### Typescript
 ```
-import { DepInjection, inject } from "depsin";
+import { createContainer, DEPS_SYMBOL, inject } from "depsin";
 
 enum TYPES {
   Auth = "auth",
@@ -64,25 +64,26 @@ class LoginService {
   }
 }
 
-class App {
-  static deps = [TYPES.Auth, TYPES.Login];
-  constructor(private auth: Auth, private service: LoginService) {}
-
-  makeLogin() {
-    return this.service.login();
-  }
-
-  token() {
-    return this.auth.getToken();
+function App(auth, service) {
+  return {
+    makeLogin() {
+      return service.login();
+    },
+    token() {
+      return auth.getToken();
+    }
   }
 }
+App[DEPS_SYMBOL] = [TYPES.Auth, TYPES.Login];
 
-const container = new DepInjection({ [TYPES.App]: App }, { [TYPES.Url]: url })
-  // .set(TYPES.Url, url)
-  .register(TYPES.Auth, Auth)
-  .register(TYPES.Login, LoginService);
+const container = createContainer({
+  [TYPES.Login]: { asClass: LoginService },
+  [TYPES.Url]: { asValue: url }
+})
+container.register(TYPES.App).asFunction(App);
+container.register(TYPES.Auth).asClass(Auth).toSingleton();
 
-const app = container.get<App>(TYPES.App);
+const app = container.get<ReturnType<typeof App>>(TYPES.App);
 console.log(app.token()); // undefined
 console.log(app.makeLogin()); // http://myurl.web && You are logged
 console.log(app.token()); // I'm a token
@@ -90,7 +91,7 @@ console.log(app.token()); // I'm a token
 
 ### JavaScript
 ```
-const { DepInjection } = require("depsin");
+const { createContainer, DEPS_SYMBOL } = require("depsin");
 
 const TYPES = {
   Auth: "auth",
@@ -119,28 +120,25 @@ class LoginService {
   }
 }
 
-LoginService.deps = [TYPES.Auth];
+LoginService[DEPS_SYMBOL] = [TYPES.Auth];
 
-class App {
-  constructor(auth, service) {
-    this.auth = auth;
-    this.service = service;
-  }
-
-  makeLogin() {
-    return this.service.login();
-  }
-
-  token() {
-    return this.auth.getToken();
+function App(auth, service) {
+  return {
+    makeLogin() {
+      return service.login();
+    },
+    token() {
+      return auth.getToken();
+    }
   }
 }
+App[DEPS_SYMBOL] = [TYPES.Auth, TYPES.Login];
 
-App.deps = [TYPES.Auth, TYPES.Login];
-
-const container = new DepInjection({[TYPES.Auth]: Auth})
-  .register(TYPES.App, App)
-  .register(TYPES.Login, LoginService);
+const container = createContainer({
+  [TYPES.Login]: { asClass: LoginService }
+})
+container.register(TYPES.App).asFunction(App);
+container.register(TYPES.Auth).asClass(Auth).toSingleton();
 
 const app = container.get(TYPES.App);
 console.log(app.token()); // undefined
@@ -150,4 +148,5 @@ console.log(app.token()); // I'm a token
 
 ## References
 - [Dependency Injection in JavaScript 101](https://dev.to/azure/dependency-injection-in-javascript-101-2b1e)
-- [InversifyJS](https://github.com/inversify/InversifyJS/)
+- [InversifyJS](https://github.com/inversify/InversifyJS)
+- [Awilix](https://github.com/jeffijoe/awilix)
