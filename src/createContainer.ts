@@ -1,12 +1,5 @@
 import { createInjectable } from './createInjectable';
-import {
-  IProviders,
-  IProviderClass,
-  IProviderValue,
-  InjectableOpts,
-  Injectable,
-  IProviderFunction,
-} from './utils/types';
+import { IProviders, IProviderClass, IProviderValue, InjectableOpts, IProviderFunction } from './utils/types';
 import * as Errors from './utils/errors';
 
 export function createContainer(providers?: IProviders, opts?: InjectableOpts) {
@@ -40,13 +33,8 @@ export function createContainer(providers?: IProviders, opts?: InjectableOpts) {
       throw Error(Errors.ALREADY_REGISTER(symbol));
     }
     const injectable = createInjectable({ symbol, opts, getDependencie: getInstance });
-    container[symbol] = injectable._inject;
-    return Object.keys(injectable).reduce((acc, key) => {
-      if (!key.startsWith('_')) {
-        acc[key] = injectable[key];
-      }
-      return acc;
-    }, <Injectable>{});
+    container[symbol] = injectable.inject;
+    return injectable;
   }
 
   function get<T>(symbol: string): T {

@@ -37,7 +37,7 @@ export function createInjectable(params: CreateInjectable) {
     };
   }
 
-  function generateDeps(deps: string[], parents: string[]) {
+  function generateDeps(deps: string[] = [], parents: string[] = []) {
     return deps.map(dep => getDependencie(dep, parents));
   }
 
@@ -70,21 +70,28 @@ export function createInjectable(params: CreateInjectable) {
 
   function toSingleton() {
     opts.lifetime = 'singleton';
+    return injectableModule;
   }
 
   function toTransient() {
     opts.lifetime = 'transient';
+    return injectableModule;
+  }
+
+  function _inject(p: string[]) {
+    return inject(p);
   }
 
   const injectableModule = {
     toSingleton,
     toTransient,
+    inject: _inject,
   };
 
   return {
     asValue,
     asFunction,
     asClass,
-    _inject: (p: string[]) => inject(p),
+    inject: _inject,
   };
 }

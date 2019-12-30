@@ -6,7 +6,7 @@ export interface IConstructor<T> {
   deps?: string[];
 }
 
-export type Injectable = Omit<ReturnType<typeof createInjectable>, '_inject'>;
+export type Injectable = ReturnType<typeof createInjectable>;
 export type Inject = (parents: string[]) => any;
 export type Container = ReturnType<typeof createContainer>;
 
