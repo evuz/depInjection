@@ -17,7 +17,8 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "rollup -c",
+    "tsc": "tsc",
+    "build": "tsc  && rollup -c",
     "dev": "jest --watch",
     "test": "jest --silent",
     "prepare": "npm run build",
