@@ -19,6 +19,13 @@ function carFn(wheels: number, engine) {
 }
 carFn[DEPS_SYMBOL] = ['Wheels', 'Engine'];
 
+function carProxy({ Wheels: wheels }) {
+  return {
+    wheels,
+  };
+}
+carProxy[DEPS_SYMBOL] = ['Wheels', 'Engine'];
+
 function deps(container: Object) {
   return function(symbol) {
     return container[symbol];
@@ -33,7 +40,7 @@ describe('CreateInjectable', () => {
     container = {
       Wheels: 4,
       Engine: {
-        on: () => 'Start',
+        on: jest.fn(() => 'Start'),
       },
     };
     getter = deps(container);
@@ -170,5 +177,13 @@ describe('CreateInjectable', () => {
     expect(secondCar.wheels).toBe(4);
 
     expect(firstCar).toBe(secondCar);
+  });
+
+  test('should inject function like proxy', () => {
+    const injectable = createInjectable({ getDependencie: getter, symbol: 'Main' });
+    injectable.asFunction(carProxy, { lifetime: 'singleton', injectionMode: 'proxy' });
+    const myCar: ReturnType<typeof carProxy> = injectable.inject([]);
+    expect(myCar.wheels).toBe(4);
+    expect(container['Engine'].on).not.toHaveBeenCalled();
   });
 });

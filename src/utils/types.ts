@@ -17,7 +17,11 @@ export interface CreateInjectable {
 }
 
 export interface InjectableOpts {
-  lifetime: 'transient' | 'singleton';
+  lifetime?: 'transient' | 'singleton';
+}
+
+export interface InjectableFunctionOpts extends InjectableOpts {
+  injectionMode?: 'proxy' | 'classic';
 }
 
 export interface IProviderClass {

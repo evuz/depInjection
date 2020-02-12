@@ -1,4 +1,4 @@
-import { CreateInjectable, InjectableOpts, IConstructor, Inject } from './utils/types';
+import { CreateInjectable, InjectableOpts, IConstructor, Inject, InjectableFunctionOpts } from './utils/types';
 import { DEPS_SYMBOL } from './utils/symbols';
 import * as Errors from './utils/errors';
 
@@ -59,10 +59,21 @@ export function createInjectable(params: CreateInjectable) {
     return injectableModule;
   }
 
-  function asFunction(func: Function, o?: InjectableOpts) {
+  function asFunction(func: Function, o?: InjectableFunctionOpts) {
     opts = Object.assign({}, opts, o);
     const deps = func[DEPS_SYMBOL] || [];
     inject = instanceGenerator(function(args) {
+      if ((<InjectableFunctionOpts>opts).injectionMode === 'proxy') {
+        const handler = {
+          get: function(_, prop: string) {
+            return getDependencie(prop, [prop]);
+          },
+          set: function() {
+            return false;
+          },
+        };
+        args = [new Proxy({}, handler)];
+      }
       return func(...args);
     }, deps);
     return injectableModule;
