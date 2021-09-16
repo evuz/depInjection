@@ -1,5 +1,5 @@
-import { createInjectable } from '../createInjectable';
-import { createContainer } from '../createContainer';
+import { createInjectable } from '../createInjectable'
+import { createContainer } from '../createContainer'
 
 export interface IConstructor<T> {
   new (...args): T;
