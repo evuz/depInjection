@@ -1,1 +1,1 @@
-export const DEPS_SYMBOL = '@@deps'
+export const DEPS_SYMBOL = Symbol('@@deps')

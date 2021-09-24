@@ -1,6 +1,6 @@
+import { Depsin } from '../container'
 import { createContainer } from '../createContainer'
 import { DEPS_SYMBOL } from '../utils/symbols'
-import { Container } from '../utils/types'
 
 const TYPES = {
   foo: 'Foo',
@@ -9,7 +9,7 @@ const TYPES = {
   qux: 'Qux',
   quux: 'Quux',
   corge: 'Corge'
-}
+} as const
 
 class Foo {
   public action = jest.fn();
@@ -56,15 +56,24 @@ class CircularBar {
 function CircularBaz () {}
 CircularBaz[DEPS_SYMBOL] = [TYPES.bar]
 
+type Container = {
+  Foo: Foo
+  Bar: Bar
+  Baz: ReturnType<typeof Baz>
+  Qux: Qux
+  Quux: Quux
+  Corge: ReturnType<typeof corge>
+  timeout: number
+}
+
 describe('CreateContainer', () => {
-  let container: Container
+  let container: Depsin<Container>
 
   beforeEach(() => {
-    container = createContainer({
-      [TYPES.foo]: { asClass: Foo },
-      [TYPES.bar]: { asClass: Bar },
-      [TYPES.baz]: { asFunction: Baz }
-    })
+    container = new Depsin()
+    container.register(TYPES.foo).asClass(Foo)
+    container.register(TYPES.bar).asClass(Bar)
+    container.register(TYPES.baz).asFunction(Baz)
   })
 
   test('should create a container', () => {
@@ -72,11 +81,11 @@ describe('CreateContainer', () => {
   })
 
   test('should register class', () => {
-    expect(container.size()).toEqual(3)
+    expect(container.size).toEqual(3)
   })
 
   test('should create a Foo instance', () => {
-    const bar = container.get<Bar>(TYPES.bar)
+    const bar = container.get(TYPES.bar)
     bar.action()
 
     expect(bar.foo instanceof Foo).toBeTruthy()
@@ -84,12 +93,12 @@ describe('CreateContainer', () => {
 
   test('should register a new class', () => {
     function error () {
-      return container.get<Qux>(TYPES.qux)
+      return container.get(TYPES.qux)
     }
     expect(error).toThrowError('not register')
     container.register(TYPES.qux).asClass(Qux)
 
-    const qux = container.get<Qux>(TYPES.qux)
+    const qux = container.get(TYPES.qux)
     expect(qux instanceof Qux).toBeTruthy()
   })
 
@@ -97,6 +106,7 @@ describe('CreateContainer', () => {
     function error () {
       return container.get(TYPES.corge)
     }
+
     expect(error).toThrowError('not register')
     container.register(TYPES.corge).asFunction(corge)
     container.register('timeout').asValue(1000)
@@ -107,30 +117,25 @@ describe('CreateContainer', () => {
   })
 
   test('should register class and value', () => {
-    container = createContainer({
-      [TYPES.quux]: { asClass: Quux },
-      [TYPES.foo]: { asValue: 3 }
-    })
+    const container = createContainer<any>()
+    container.register(TYPES.quux).asClass(Quux)
+    container.register(TYPES.foo).asValue(3)
     container.register(TYPES.bar).asValue('value')
 
-    const quux = container.get<Quux>(TYPES.quux)
+    const quux = container.get(TYPES.quux)
     expect(quux.foo).toBe(3)
     expect(quux.bar).toBe('value')
   })
 
   test('should create only one Foo instance', () => {
-    container = createContainer(
-      {
-        [TYPES.foo]: { asClass: Foo },
-        [TYPES.bar]: { asClass: Bar },
-        [TYPES.baz]: { asFunction: Baz }
-      },
-      { lifetime: 'singleton' }
-    )
+    const container = createContainer<any>()
+    container.register(TYPES.foo).asClass(Foo).toSingleton()
+    container.register(TYPES.bar).asClass(Bar).toSingleton()
+    container.register(TYPES.baz).asFunction(Baz).toSingleton()
 
-    const bar = container.get<Bar>(TYPES.bar)
-    const baz = container.get<ReturnType<typeof Baz>>(TYPES.baz)
-    const foo = container.get<Foo>(TYPES.foo)
+    const bar = container.get(TYPES.bar)
+    const baz = container.get(TYPES.baz)
+    const foo = container.get(TYPES.foo)
     bar.action()
     baz.action()
 
@@ -138,15 +143,14 @@ describe('CreateContainer', () => {
   })
 
   test('should create only one Foo instance when register symbol', () => {
-    container = createContainer({
-      [TYPES.bar]: { asClass: Bar },
-      [TYPES.baz]: { asFunction: Baz }
-    })
-    container.register(TYPES.foo).asClass(Foo, { lifetime: 'singleton' })
+    const container = createContainer<any>()
+    container.register(TYPES.bar).asClass(Bar)
+    container.register(TYPES.baz).asFunction(Baz)
+    container.register(TYPES.foo).asClass(Foo).toSingleton()
 
-    const bar = container.get<Bar>(TYPES.bar)
-    const baz = container.get<ReturnType<typeof Baz>>(TYPES.baz)
-    const foo = container.get<Foo>(TYPES.foo)
+    const bar = container.get(TYPES.bar)
+    const baz = container.get(TYPES.baz)
+    const foo = container.get(TYPES.foo)
     bar.action()
     baz.action()
 
@@ -154,7 +158,7 @@ describe('CreateContainer', () => {
   })
 
   test('should throw circular dependencies error', () => {
-    const circular = createContainer()
+    const circular = createContainer<any>()
     circular.register(TYPES.foo).asClass(CircularFoo)
     circular.register(TYPES.bar).asClass(CircularBar)
     circular.register(TYPES.baz).asFunction(CircularBaz)
