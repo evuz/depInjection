@@ -1,5 +1,4 @@
 import { Depsin } from '../container'
-import { createContainer } from '../createContainer'
 import { DEPS_SYMBOL } from '../utils/symbols'
 
 const TYPES = {
@@ -66,7 +65,7 @@ type Container = {
   timeout: number
 }
 
-describe('CreateContainer', () => {
+describe('Depsin container', () => {
   let container: Depsin<Container>
 
   beforeEach(() => {
@@ -117,7 +116,7 @@ describe('CreateContainer', () => {
   })
 
   test('should register class and value', () => {
-    const container = createContainer<any>()
+    const container = new Depsin<any>()
     container.register(TYPES.quux).asClass(Quux)
     container.register(TYPES.foo).asValue(3)
     container.register(TYPES.bar).asValue('value')
@@ -128,7 +127,7 @@ describe('CreateContainer', () => {
   })
 
   test('should create only one Foo instance', () => {
-    const container = createContainer<any>()
+    const container = new Depsin<any>()
     container.register(TYPES.foo).asClass(Foo).toSingleton()
     container.register(TYPES.bar).asClass(Bar).toSingleton()
     container.register(TYPES.baz).asFunction(Baz).toSingleton()
@@ -143,7 +142,7 @@ describe('CreateContainer', () => {
   })
 
   test('should create only one Foo instance when register symbol', () => {
-    const container = createContainer<any>()
+    const container = new Depsin<any>()
     container.register(TYPES.bar).asClass(Bar)
     container.register(TYPES.baz).asFunction(Baz)
     container.register(TYPES.foo).asClass(Foo).toSingleton()
@@ -158,7 +157,7 @@ describe('CreateContainer', () => {
   })
 
   test('should throw circular dependencies error', () => {
-    const circular = createContainer<any>()
+    const circular = new Depsin<any>()
     circular.register(TYPES.foo).asClass(CircularFoo)
     circular.register(TYPES.bar).asClass(CircularBar)
     circular.register(TYPES.baz).asFunction(CircularBaz)
