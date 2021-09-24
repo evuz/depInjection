@@ -11,11 +11,13 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
+    "@typescript-eslint/no-dupe-class-members": "error",
     "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/no-useless-constructor": ["error"],
     "@typescript-eslint/no-redeclare": ["error"],
     "import/newline-after-import": "error",
     "import/order": ["error", { "newlines-between": "always" }],
+    "no-dupe-class-members": "off",
     "no-unused-vars": "off",
     "no-use-before-define": "off",
     "no-useless-constructor": "off",

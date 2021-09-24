@@ -19,8 +19,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "tsc": "tsc",
-    "build": "tsc  && rollup -c",
+    "build": "rollup -c",
     "dev": "jest --watch",
     "test": "jest --silent",
     "prepare": "npm run build && husky install",
