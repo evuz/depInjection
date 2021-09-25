@@ -1,4 +1,3 @@
-import { Depsin } from '../container'
 import { Injectable } from '../injectable'
 import { DEPS_SYMBOL } from '../utils/symbols'
 
@@ -16,14 +15,13 @@ function carFn (wheels: number, engine): Car {
 carFn[DEPS_SYMBOL] = ['Wheels', 'Engine']
 
 describe('Injectable', () => {
-  let container: Depsin<any>
+  let container: any
 
   beforeEach(() => {
-    container = new Depsin()
-    container.register('Wheels').asValue(4)
-    container.register('Engine').asValue({
-      on: () => 'Start'
-    })
+    container = {
+      Wheels: 4,
+      Engine: { on: () => 'Start' }
+    }
   })
 
   test('should create a container', () => {

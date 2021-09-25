@@ -126,6 +126,24 @@ describe('Depsin container', () => {
     expect(quux.bar).toBe('value')
   })
 
+  test('should instance proxy', () => {
+    type Container = {
+      [TYPES.quux]: Quux
+      [TYPES.foo] : number
+      [TYPES.bar] : string
+    }
+    const container = new Depsin<Container>()
+    container.register(TYPES.quux).asClass(Quux)
+    container.register(TYPES.foo).asValue(3)
+    container.register(TYPES.bar).asValue('value')
+
+    const proxy = container.proxy
+
+    const quux = proxy[TYPES.quux]
+    expect(quux.foo).toBe(3)
+    expect(quux.bar).toBe('value')
+  })
+
   test('should create only one Foo instance', () => {
     const container = new Depsin<any>()
     container.register(TYPES.foo).asClass(Foo).toSingleton()

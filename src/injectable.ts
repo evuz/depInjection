@@ -1,4 +1,3 @@
-import type { Depsin } from './container'
 import { DEPS_SYMBOL } from './utils/symbols'
 import * as Errors from './utils/errors'
 import type { IConstructor, Token } from './utils/types'
@@ -35,7 +34,7 @@ export class Injectable<T = unknown> {
     this.symbol = Symbol('Injectable')
   }
 
-  get (container: Depsin<any>): T {
+  get (container: Record<Token, any>): T {
     if (!this.initializer) {
       throw Error(Errors.DEP_EMPTY(this.description))
     }
@@ -46,7 +45,7 @@ export class Injectable<T = unknown> {
 
     parents.set(this.symbol, true)
 
-    const deps = (this.deps || []).map(dep => container.get(dep))
+    const deps = (this.deps || []).map(dep => container[dep])
     const instance = this.initializer(deps)
     if (this.options.lifetime === 'singleton') {
       this.initializer = function () {

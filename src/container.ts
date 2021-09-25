@@ -2,8 +2,14 @@ import { Injectable, InjectableOpts } from './injectable'
 import * as Errors from './utils/errors'
 import type { Token } from './utils/types'
 
+function createProxy (container: Depsin<any>): any {
+  return new Proxy(container, { get: (target, name) => target.get(name) })
+}
+
 export class Depsin<T extends Object> {
   private container = new Map<Token, Injectable<any>>()
+
+  proxy: T = createProxy(this)
 
   get size () {
     return this.container.size
@@ -26,6 +32,6 @@ export class Depsin<T extends Object> {
     }
 
     const injectable = this.container.get(symbol)
-    return injectable.get(this)
+    return injectable.get(this.proxy)
   }
 }
