@@ -51,6 +51,16 @@ describe('Injectable', () => {
     expect(car.wheels).toBe(4)
   })
 
+  test('should create override deps', () => {
+    (<any>container).specialWheels = 2
+    const injectable = new Injectable<Car>({ deps: ['specialWheels', 'Engine'] }).asFunction(carFn)
+    const car = injectable.get(container)
+
+    expect(car.start()).toBe('Start')
+    expect(car.wheels).not.toBe(4)
+    expect(car.wheels).toBe(2)
+  })
+
   test('should set lifetime transient by default', () => {
     const injectable = new Injectable<Car>().asFunction(carFn)
     const firstCar: Car = injectable.get(container)
