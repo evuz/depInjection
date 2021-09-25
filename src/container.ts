@@ -15,12 +15,15 @@ export class Depsin<T extends Object> {
     return this.container.size
   }
 
-  register<K extends keyof T> (symbol: K, options?: InjectableOpts): Injectable<T[K]> {
+  register<K extends keyof T> (symbol: K, injectable?: InjectableOpts | Injectable<T[K]>): Injectable<T[K]> {
     if (this.container.has(symbol)) {
       throw Error(Errors.ALREADY_REGISTER(symbol))
     }
 
-    const injectable = new Injectable<T[K]>({ ...options, identifier: symbol })
+    if (!(injectable instanceof Injectable)) {
+      injectable = new Injectable<T[K]>({ ...injectable, identifier: symbol })
+    }
+
     this.container.set(symbol, injectable)
 
     return injectable

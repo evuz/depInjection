@@ -1,4 +1,5 @@
 import { Depsin } from '../container'
+import { Injectable } from '../injectable'
 import { DEPS_SYMBOL } from '../utils/symbols'
 
 const TYPES = {
@@ -73,6 +74,14 @@ describe('Depsin container', () => {
     container.register(TYPES.foo).asClass(Foo)
     container.register(TYPES.bar).asClass(Bar)
     container.register(TYPES.baz).asFunction(Baz)
+  })
+
+  test('should register a Injectable', () => {
+    const injectable = new Injectable().asClass(Qux)
+    container.register(TYPES.qux, injectable)
+
+    const instance = container.get(TYPES.qux)
+    expect(instance).toBeInstanceOf(Qux)
   })
 
   test('should create a container', () => {
