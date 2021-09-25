@@ -46,13 +46,17 @@ export class Injectable<T = unknown> {
     parents.set(this.symbol, true)
 
     const deps = (this.deps || []).map(dep => container[dep])
+    deps.push(container)
     const instance = this.initializer(deps)
+
     if (this.options.lifetime === 'singleton') {
       this.initializer = function () {
         return instance
       }
     }
+
     parents.set(this.symbol, false)
+
     return instance
   }
 

@@ -61,6 +61,17 @@ describe('Injectable', () => {
     expect(car.wheels).toBe(2)
   })
 
+  test('should add container like last dependency', () => {
+    function foo (...args: any[]) {
+      return args
+    }
+    const injectable = new Injectable<any[]>({ deps: ['Wheels'] }).asFunction(foo)
+    const instance = injectable.get(container)
+
+    expect(instance[0]).toBe(4)
+    expect(instance[1]).toBe(container)
+  })
+
   test('should set lifetime transient by default', () => {
     const injectable = new Injectable<Car>().asFunction(carFn)
     const firstCar: Car = injectable.get(container)
