@@ -8,13 +8,12 @@ export type InjectableOpts = {
   lifetime?: LifetimeOpts
 };
 
-export type CreateInjectable = InjectableOpts & {
+export type CreateInjectableOpts = InjectableOpts & {
   identifier?: Token,
-  deps?: Token[]
 }
 
 const parents = new Map<symbol, boolean>()
-const defaultCtor: CreateInjectable = { lifetime: 'transient' }
+const defaultCtor: CreateInjectableOpts = { lifetime: 'transient' }
 
 export class Injectable<T = unknown> {
   private options: InjectableOpts
@@ -27,7 +26,19 @@ export class Injectable<T = unknown> {
     return this.identifier || this.symbol
   }
 
-  constructor ({ identifier, deps, lifetime }: CreateInjectable = defaultCtor) {
+  constructor (opts?: CreateInjectableOpts)
+  constructor (deps: Token[], opts?: CreateInjectableOpts)
+  constructor (a: any, b: any = defaultCtor) {
+    let deps: Token[] = a
+    let opts: CreateInjectableOpts = b
+
+    if (!Array.isArray(deps)) {
+      deps = undefined
+      opts = a || opts
+    }
+
+    const { lifetime, identifier } = opts
+
     this.options = { lifetime }
     this.deps = deps
     this.identifier = identifier

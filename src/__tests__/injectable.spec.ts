@@ -53,7 +53,7 @@ describe('Injectable', () => {
 
   test('should create override deps', () => {
     (<any>container).specialWheels = 2
-    const injectable = new Injectable<Car>({ deps: ['specialWheels', 'Engine'] }).asFunction(carFn)
+    const injectable = new Injectable<Car>(['specialWheels', 'Engine']).asFunction(carFn)
     const car = injectable.get(container)
 
     expect(car.start()).toBe('Start')
@@ -65,7 +65,7 @@ describe('Injectable', () => {
     function foo (...args: any[]) {
       return args
     }
-    const injectable = new Injectable<any[]>({ deps: ['Wheels'] }).asFunction(foo)
+    const injectable = new Injectable<any[]>(['Wheels']).asFunction(foo)
     const instance = injectable.get(container)
 
     expect(instance[0]).toBe(4)
